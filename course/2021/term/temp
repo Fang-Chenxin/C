@@ -1,0 +1,20 @@
+switch (name)
+            {
+            case 'A':
+                input(&A[0][0],m,n);
+                break;
+            case 'B':
+                input(&B[0][0],m,n);
+                break;
+            case 'C':
+                input(&C[0][0],m,n);
+                break;
+            case 'D':
+                input(&D[0][0],m,n);
+                break;
+            case 'E':
+                input(&E[0][0],m,n);
+                break;
+            default:
+                break;
+            }
