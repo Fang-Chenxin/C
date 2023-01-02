@@ -25,7 +25,3 @@ int main() {
 // 如果遇到了问题，请您浏览
 // https://github.com/Guyutongxue/VSCodeConfigHelper/blob/master/TroubleShooting.md 
 // 获取帮助。如果问题未能得到解决，请联系开发者。
-/*
-jgoaijosnba
-修改记号1
-*/

@@ -1,7 +1,7 @@
 git11
 git1
-wqqq
 more changes
-add add add
+modify
 gitee test
 git rm --cached gitTest.md
+newline
