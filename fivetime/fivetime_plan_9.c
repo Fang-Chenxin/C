@@ -290,27 +290,32 @@ int main(void)
 	List* p;
 	double a[N][N], b[N][N];
 	int i, j, n, m, l;
+
 	printf("请输入阶段数：\n");
 	scanf("%d",&l);
 	printf("请输入 ts, start_x, start_v, start_a：\n");
 	scanf("%lf%lf%lf%lf", &ts, &start_x, &start_v, &start_a);
+
     for(m=0; m<l; m++)
 	{	
 		printf("请输入 te%d, end_x%d, end_v%d, end_a%d：\n",m+1,m+1,m+1,m+1);
 		scanf("%lf%lf%lf%lf", &te, &end_x, &end_v, &end_a);
 		double para[6][1] = { start_x, end_x, start_v, end_v, start_a, end_a};
 	    double c[6][1];
+
 		if (te<=ts){printf("Your input error.\n");break;}//程序报错
 		te = te-ts;ts = 0;//将时间归零，与plan公式对应    
 		calcu(ts,te,b);//计算逆矩阵                                          
-		Ci(b, para, c);//计算系数	
+		Ci(b, para, c);//计算系数
+
 	    printf("系数:\n");
 	    for (i = 0; i < 6; i++)
-        printf("%.2f \n", c[i][0]);
+        	printf("%.2f \n", c[i][0]);
       	plan(ts, start_x, start_v, start_a, te, end_x, end_v, end_a, c);
+
     	printf("输出x  v  a:\n");
     	for(i = 0; i < T; i++ )
-    	printf("%.2f %.2f %.2f  \n", z[i][0], z[i][1], z[i][2]);
+    		printf("%.2f %.2f %.2f  \n", z[i][0], z[i][1], z[i][2]);
     	ts = te;start_x = end_x;start_v = end_v;start_a = end_a;//以前一次的末状态作为后一次的初状态
 	}
     return 0;
