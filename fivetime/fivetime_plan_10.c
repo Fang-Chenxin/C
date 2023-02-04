@@ -38,17 +38,12 @@ struct Node
 typedef struct Node List;
 
 
-//-----------------------------------------------  
-//功能: 求矩阵(n*n)的行列式  
-//入口参数: 矩阵的首地址，矩阵的行数  
-//返回值: 矩阵的行列式值  
-//---------------------------------------------- 
 /**
  * @brief 求矩阵(n*n)的行列式
  * 
- * @param p  矩阵的首地址
- * @param n  矩阵的行数
- * @return * double  矩阵的行列式值
+ * @param p 矩阵的首地址
+ * @param n 矩阵的行数
+ * @return double 矩阵的行列式值
  */
 double MatDet(double* p, int n)
 {
@@ -84,11 +79,15 @@ double MatDet(double* p, int n)
 	return result;
 }
 
-//----------------------------------------------------------------------------  
-//功能: 求k*k矩阵中元素A(m, n)的代数余之式  
-//入口参数: k*k矩阵的首地址，矩阵元素A的下标m,n,矩阵行数k  
-//返回值: k*k矩阵中元素A(m, n)的代数余之式  
-//----------------------------------------------------------------------------  
+/**
+ * @brief 求k*k矩阵中元素A(m, n)的代数余子式
+ * 
+ * @param p k*k矩阵中的首地址
+ * @param m 矩阵元素A的下标m
+ * @param n 矩阵元素A的下标n
+ * @param k 矩阵行数
+ * @return double k*k矩阵中元素A(m, n)的代数余子式
+ */
 double Creat_M(double* p, int m, int n, int k)
 {
 	int len;
@@ -118,18 +117,13 @@ double Creat_M(double* p, int m, int n, int k)
 
 
 
-//------------------------------------------------------------------  
-//功能: 采用部分主元的高斯消去法求方阵A的逆矩阵B  
-//入口参数: 输出方阵，输出方阵，方阵阶数  
-//返回值: true or false  
-//-------------------------------------------------------------------  
 /**
- * @brief 高斯消元法求逆矩阵
+ * @brief 采用部分主元的高斯消去法求方阵A的逆矩阵B
  * 
- * @param A  输入矩阵
- * @param B  输出矩阵
- * @param n  矩阵阶数
- * @return int  0:成功 1:失败
+ * @param A 输入方阵
+ * @param B 输出方阵
+ * @param n 方阵阶数
+ * @return int 0:成功 1：失败
  */
 int Gauss(double A[][N], double B[][N], int n)
 {
@@ -214,6 +208,13 @@ double x=0, v=0, a=0;
 double  c0, c1, c2, c3, c4, c5;
 double z[T][3];
 
+/**
+ * @brief 创建一个空白链表p
+ * 
+ * @param n 循环次数
+ * @param zq 空白链表p的首地址
+ * @return List* 空白链表p
+ */
 List* CreatList(int n, double *zq )
 {
 	List* pre, * cur, * p;
@@ -231,20 +232,19 @@ List* CreatList(int n, double *zq )
 	}
 	return p;
 }
-
 /**
- * @brief 
+ * @brief 求出x, v, a的输出数组
  * 
- * @param ts 
- * @param start_x 
- * @param start_v 
- * @param start_a 
- * @param te 
- * @param end_x 
- * @param end_v 
- * @param end_a 
- * @param c 
- * @return double* 
+ * @param ts 开始时间
+ * @param start_x 起始位置
+ * @param start_v 起始速度
+ * @param start_a 起始加速度
+ * @param te 结束时间
+ * @param end_x 终点位置
+ * @param end_v 终点速度
+ * @param end_a 终点加速度
+ * @param c 系数数组
+ * @return double* x, v, a的输出数组
  */
 double* plan(double ts, double start_x, double start_v, double start_a, double te, double end_x, double end_v, double end_a ,double c[6][1])
 {
@@ -273,6 +273,13 @@ double* plan(double ts, double start_x, double start_v, double start_a, double t
 	return p ;
 }
 
+/**
+ * @brief 求出系数矩阵c
+ * 
+ * @param a 输入矩阵
+ * @param b 输入矩阵
+ * @param c 输出矩阵
+ */
 void Ci(double a[6][6], double b[6][1], double c[6][1])//6*1横行列式乘以6*6方阵
 {
 	int i, j;
@@ -287,14 +294,14 @@ void Ci(double a[6][6], double b[6][1], double c[6][1])//6*1横行列式乘以6*
 }
 
 /**
- * @brief 
+ * @brief 运用高斯消去法求矩阵的逆矩阵并输出
  * 
- * @param x 
- * @param y 
- * @param a 
- * @return double* 
+ * @param x 开始时间
+ * @param y 结束时间
+ * @param a 输出矩阵
+ * @return void* 矩阵的逆矩阵
  */
-double *calcu(double x, double y, double a[N][N])
+void *calcu(double x, double y, double a[N][N])
 {
 		double Tran[6][6] =
 		{ 1, x,  pow(x ,2), pow(x , 3), pow(x , 4), pow(x , 5),
@@ -305,7 +312,6 @@ double *calcu(double x, double y, double a[N][N])
 		 0, 0, 2, 6 * y, 12 * pow(y , 2), 20 * pow(y , 3)} ;
 		printf("逆矩阵：\n");
 		int i,j;
-		//运用高斯消去法求该矩阵的逆矩阵并输出  
 		if (Gauss(Tran, a, 6))
 		{
 		for (i = 0; i < 6; i++)
@@ -321,31 +327,28 @@ double *calcu(double x, double y, double a[N][N])
 }
 
 /**
- * @brief   高斯消去法求矩阵的逆矩阵
+ * @brief 五次路径规划求输出
  * 
- * @return int  
  */
-int main(void)
+void fivetime_plan(void)
 {
 	//int X[], V[], A[];
 	//int fputc( int c, FILE *fp );
 	List* p;
-	double a[N][N], b[N][N];
+	double a[N][N], b[N][N],c[6][1];
 	int i, j, n, m, l;
 
 	//printf("请输入阶段数：\n");
 	//scanf("%d",&l);
-	l=3;
-	printf("请输入 ts, start_x, start_v, start_a：\n");
-	scanf("%lf%lf%lf%lf", &ts, &start_x, &start_v, &start_a);
-
+	l=1;
+	//printf("请输入 ts, start_x, start_v, start_a：\n");
+	//scanf("%lf%lf%lf%lf", &ts, &start_x, &start_v, &start_a); 
     for(m=0; m<l; m++)
 	{	
-		printf("请输入 te%d, end_x%d, end_v%d, end_a%d：\n",m+1,m+1,m+1,m+1);
-		scanf("%lf%lf%lf%lf", &te, &end_x, &end_v, &end_a);
-		double para[6][1] = { start_x, end_x, start_v, end_v, start_a, end_a};
-	    double c[6][1];
-
+		//printf("请输入 te%d, end_x%d, end_v%d, end_a%d：\n",m+1,m+1,m+1,m+1);
+		//scanf("%lf%lf%lf%lf", &te, &end_x, &end_v, &end_a);
+	    double para[6][1] = { start_x, end_x, start_v, end_v, start_a, end_a};
+        
 		if (te<=ts){printf("Your input error.\n");break;}//程序报错
 		te = te-ts;ts = 0;//将时间归零，与plan公式对应    
 		calcu(ts,te,b);//计算逆矩阵                                          
@@ -353,13 +356,26 @@ int main(void)
 
 	    printf("系数:\n");
 	    for (i = 0; i < 6; i++)
-        	printf("%.2f \n", c[i][0]);
-      	plan(ts, start_x, start_v, start_a, te, end_x, end_v, end_a, c);
+		   printf("%.2f \n", c[i][0]);
+        plan(ts, start_x, start_v, start_a, te, end_x, end_v, end_a, c);
 
     	printf("输出x  v  a:\n");
     	for(i = 0; i < T; i++ )
     		printf("%.2f %.2f %.2f  \n", z[i][0], z[i][1], z[i][2]);
     	ts = te;start_x = end_x;start_v = end_v;start_a = end_a;//以前一次的末状态作为后一次的初状态
 	}
-    return 0;
+}
+
+int main()
+{
+    ts = 20;
+	start_x = 50;
+	start_v = 0;
+	start_a = 0;
+    te = 200;
+    end_x = 500;
+    end_v = 20;
+	end_a = 5;
+	fivetime_plan();//五次路径规划
+	return 0;
 }
