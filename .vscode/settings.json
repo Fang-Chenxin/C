@@ -4,6 +4,7 @@
   "C_Cpp.default.cppStandard": "c++20",
   "debug.onTaskErrors": "abort",
   "files.associations": {
-    "iomanip": "c"
+    "iomanip": "c",
+    "iostream": "cpp"
   }
 }

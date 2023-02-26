@@ -5,8 +5,11 @@
 
 
 
-#define  N  6                //定义方阵的最大阶数为6
-#define  T  1000             //定义间隔数为1000
+#define  N  6              //定义方阵的最大阶数为6
+#define  T  50             //定义间隔数为50
+#define  VMAX  50         //定义最大速度为50m/s
+#define  AMAX  500        //定义最大加速度为50m/s^2
+#define  VEXA  5         //定义参考速度为5m/s
 
 /**
  * @brief 用结构体打包变量方便调用
@@ -14,15 +17,18 @@
  */
 struct FTPLAN
 {
+	double te[20];
+	double end_x[20];
+	double end_v[20];
+	double end_a[20];
 	int l;
     double ts;
 	double start_x;
 	double start_v;
 	double start_a;
-    double te;
-    double end_x;
-    double end_v;
-	double end_a;
+	double v_max;//最大速度
+	double a_max;//最大加速度
+	double v_exa;//较低的参考速度
 };
 
 
@@ -251,6 +257,7 @@ List* CreatList(int n, double *zq )
 	}
 	return p;
 }
+
 /**
  * @brief 求出x, v, a的输出数组
  * 
@@ -357,9 +364,10 @@ void fivetime_plan(struct FTPLAN *ftplan)
 	
 	List* p;
 	double a[N][N], b[N][N],c[6][1];
+	double te,end_x,end_v,end_a;
 	int i, m;
 
-	//printf("请输入阶段数：\n");
+	//printf("请输入阶段数：\n"); 
 	//scanf("%d",&l);
 	//printf("请输入 ts, start_x, start_v, start_a：\n");
 	//scanf("%lf%lf%lf%lf", &ts, &start_x, &start_v, &start_a); 
@@ -367,38 +375,53 @@ void fivetime_plan(struct FTPLAN *ftplan)
 	{	
 		//printf("请输入 te%d, end_x%d, end_v%d, end_a%d：\n",m+1,m+1,m+1,m+1);
 		//scanf("%lf%lf%lf%lf", &te, &end_x, &end_v, &end_a);
-	    double para[6][1] = { ftplan->start_x, ftplan->end_x, ftplan->start_v, ftplan->end_v, ftplan->start_a, ftplan->end_a};
+		te = ftplan->te[m]/5;end_x = ftplan->end_x[m];end_v = ftplan->end_v[m];end_a = ftplan->end_a[m];
+	    double para[6][1] = { ftplan->start_x, end_x, ftplan->start_v, end_v, ftplan->start_a, end_a};
 
-		if (ftplan->te<=ftplan->ts){printf("Your input error.\n");break;}//程序报错
-		ftplan->te = ftplan->te-ftplan->ts;ftplan->ts = 0;//将时间归零，与plan公式对应    
-		calcu(ftplan->ts,ftplan->te,b);//计算逆矩阵                                          
+		if (te<=ftplan->ts){printf("Your input error.\n");break;}//程序报错
+		te = te-ftplan->ts;ftplan->ts = 0;//将时间归零，与plan公式对应    
+		calcu(ftplan->ts,te,b);//计算逆矩阵                                          
 		Ci(b, para, c);//计算系数
 
 	    printf("系数:\n");
 	    for (i = 0; i < 6; i++)
 		   printf("%.2f \n", c[i][0]);
-        plan(ftplan->ts, ftplan->start_x, ftplan->start_v, ftplan->start_a, ftplan->te, ftplan->end_x, ftplan->end_v, ftplan->end_a, c);
+        plan(ftplan->ts, ftplan->start_x, ftplan->start_v, ftplan->start_a, te, end_x, end_v, end_a, c);
 
     	printf("输出x  v  a:\n");
     	for(i = 0; i < T; i++ )
     		printf("%.2f %.2f %.2f  \n", z[i][0], z[i][1], z[i][2]);
-    	ftplan->ts = ftplan->te;ftplan->start_x = ftplan->end_x;ftplan->start_v = ftplan->end_v;ftplan->start_a = ftplan->end_a;//以前一次的末状态作为后一次的初状态
+    	ftplan->ts = te;ftplan->start_x = end_x;ftplan->start_v = end_v;ftplan->start_a = end_a;//以前一次的末状态作为后一次的初状态
 	}
 }
+
 
 int main()
 {
 	struct FTPLAN ftplan;
-	
-	ftplan.l = 1;
-    ftplan.ts = 20;
-	ftplan.start_x = 50;
+
+    double te[20]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+    double end_x[20]={10,20,30,40,50,60,70,80,90,100,90,80,70,60,50,40,30,20,10,0};
+    double end_v[20]={1,2,3,4,5,6,7,8,9,10,9,8,7,6,5,4,3,2,1,0};
+    double end_a[20]={1,2,3,4,5,6,7,8,9,10,9,8,7,6,5,4,3,2,1,0};
+	ftplan.l = 3;//1<=l<=20
+    ftplan.ts = 0;
+	ftplan.start_x = 0;
 	ftplan.start_v = 0;
 	ftplan.start_a = 0;
-    ftplan.te = 200;
-    ftplan.end_x = 500;
-    ftplan.end_v = 20;
-	ftplan.end_a = 5;
+	ftplan.v_max = VMAX;
+	ftplan.a_max = AMAX;
+	ftplan.v_exa = VEXA;
+	int p;
+	for(p=0;p<ftplan.l;p++)
+	{
+		ftplan.te[p]=te[p];
+	    ftplan.end_x[p]=end_x[p];
+	    ftplan.end_v[p]=end_v[p];
+	    ftplan.end_a[p]=end_a[p];
+	}
+		
+
 	fivetime_plan(&ftplan);//五次路径规划
 	return 0;
 }
