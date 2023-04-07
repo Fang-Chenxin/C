@@ -10,22 +10,22 @@ void GetPoint(vector2d *Ps, double x, double y) {
 	Ps->y = y;
 }
 
-//递归求 n!
+
 double factorial(int n) {
 	if (n <= 1)return 1;
 	return factorial(n - 1) * n;
 }
 
-//贝塞尔曲线表达式
+
 vector2d BezierCommon(vector2d Ps[], int cnt, double t) {
-	int n = cnt - 1; //连线
-	if (n == 0) { //一个点的时候返回自身
+	int n = cnt - 1; 
+	if (n == 0) { 
 		return Ps[0];
 	}
 	vector2d P_t;
 	P_t.x = P_t.y = 0;
 	for (int i = 0; i < cnt; ++i) {
-		double C_n_i = factorial(n) / (factorial(i) * factorial(n - i)); //组合数，二项式展开定理的系数
+		double C_n_i = factorial(n) / (factorial(i) * factorial(n - i)); 
 		P_t.x += C_n_i * pow((1 - t), (n - i)) * pow(t, i) * Ps[i].x;
 		P_t.y += C_n_i * pow((1 - t), (n - i)) * pow(t, i) * Ps[i].y;
 	}
@@ -38,9 +38,9 @@ int main() {
 	GetPoint(&Ps[1], 5, 0);
 	GetPoint(&Ps[2], 10, 5);
 	GetPoint(&Ps[3], 15, 5);
-	int t0 = 100;//间隔，类似间隔抽样
+	int t0 = 100;
 
-	FILE* fp1, *fp2; //写入txt文件
+	FILE* fp1, *fp2;
 	fp1 = fopen("Pt.txt", "w");
 	fp2 = fopen("line.txt", "w");
 	if (fp1 == NULL || fp2 == NULL) {
@@ -51,8 +51,8 @@ int main() {
 	}
 
 	for (int t = 0; t <= t0; ++t) {
-		vector2d pos = BezierCommon(Ps, 4, (double)t / t0); //计算在t的时候的点的坐标
-		printf("点%d: (%.3lf,%.3lf)\n", t + 1, pos.x, pos.y); //打印点的坐标
+		vector2d pos = BezierCommon(Ps, 4, (double)t / t0);
+		printf("??%d: (%.3lf,%.3lf)\n", t + 1, pos.x, pos.y);
 		fprintf(fp2, "%.3lf %.3lf\n", pos.x,  pos.y);
 	}
 
@@ -61,6 +61,5 @@ int main() {
 	fclose(fp2);
 	return 0;
 }
-
 
 
