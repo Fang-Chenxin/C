@@ -4,7 +4,7 @@
 
 using namespace std;
 
-//ÓÃÀàÀ´´´½¨µãµÄ×ø±ê£¬±ãÓÚ¸³ÖµºÍÈ¡Öµ 
+//ç”¨ç±»æ¥åˆ›å»ºç‚¹çš„åæ ‡ï¼Œä¾¿äºèµ‹å€¼å’Œå–å€¼ 
 class vector2d {
 	public:
 		double x,y;
@@ -15,21 +15,21 @@ class vector2d {
 };
 
 
-//µİ¹éÇó n! 
+//é€’å½’æ±‚ n! 
 double factorial(int n) {
     if(n<=1)return 1;
     return factorial(n-1)*n;
 }
 
-//±´Èû¶ûÇúÏß±í´ïÊ½ 
+//è´å¡å°”æ›²çº¿è¡¨è¾¾å¼ 
 vector2d BezierCommon(vector<vector2d> Ps,double t){
-	int n = Ps.size()-1;//Á¬Ïß 
-	if(n == 0){//Ò»¸öµãµÄÊ±ºò·µ»Ø×ÔÉí 
+	int n = Ps.size()-1;//è¿çº¿ 
+	if(n == 0){//ä¸€ä¸ªç‚¹çš„æ—¶å€™è¿”å›è‡ªèº« 
 		return Ps[0];
 	}
 	vector2d P_t(0,0); 
 	for(int i=0;i<Ps.size();++i){
-		double C_n_i = factorial(n)/ (factorial(i)* factorial(n-i));//×éºÏÊı£¬¶şÏîÊ½Õ¹¿ª¶¨ÀíµÄÏµÊı
+		double C_n_i = factorial(n)/ (factorial(i)* factorial(n-i));//ç»„åˆæ•°ï¼ŒäºŒé¡¹å¼å±•å¼€å®šç†çš„ç³»æ•°
 		P_t.x += C_n_i*pow((1-t),(n-i))*pow(t,i)*Ps[i].x;
 		P_t.y += C_n_i*pow((1-t),(n-i))*pow(t,i)*Ps[i].y;
 	}
@@ -38,10 +38,10 @@ vector2d BezierCommon(vector<vector2d> Ps,double t){
 
 int main(){
 	vector<vector2d> Ps{vector2d(0,0),vector2d(3,0),vector2d(8,5),vector2d(13,5)};
-	int t0 = 100;//¼ä¸ô£¬ÀàËÆ¼ä¸ô³éÑù 
+	int t0 = 100;//é—´éš”ï¼Œç±»ä¼¼é—´éš”æŠ½æ · 
 	for(int t=0;t<t0;++t){
-		vector2d pos = BezierCommon(Ps,(double)t/t0);//¼ÆËãÔÚtµÄÊ±ºòµÄµãµÄ×ø±ê 
-		printf("µã%d: (%.2lf,%.2lf)\n",t+1,pos.x,pos.y);//´òÓ¡µãµÄ×ø±ê 
+		vector2d pos = BezierCommon(Ps,(double)t/t0);//è®¡ç®—åœ¨tçš„æ—¶å€™çš„ç‚¹çš„åæ ‡ 
+		printf("ç‚¹%d: (%.2lf,%.2lf)\n",t+1,pos.x,pos.y);//æ‰“å°ç‚¹çš„åæ ‡ 
 	}
 	return 0;
 }
