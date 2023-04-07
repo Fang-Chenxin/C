@@ -5,6 +5,7 @@
   "debug.onTaskErrors": "abort",
   "files.associations": {
     "iomanip": "c",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "vector": "cpp"
   }
 }

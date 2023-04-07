@@ -31,7 +31,7 @@ vector2d BezierCommon(vector<vector2d> Ps,double t){
 	for(int i=0;i<Ps.size();++i){
 		double C_n_i = factorial(n)/ (factorial(i)* factorial(n-i));//组合数，二项式展开定理的系数
 		P_t.x += C_n_i*pow((1-t),(n-i))*pow(t,i)*Ps[i].x;
-		P_t.y += C_n_i*pow((1-t),(n-i))*pow(t,i)*Ps[i].y;
+		P_t.y += C_n_i*pow((1-t),(n-i))*pow(t,i)*Ps[i].y;	
 	}
 	return P_t;
 }
