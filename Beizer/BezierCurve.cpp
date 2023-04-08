@@ -33,12 +33,12 @@ vector2d BezierCommon(vector2d Ps[], int cnt, double t) {
 }
 
 int main() {
-	int point_num = 4;
+	int point_num = 3;
 	vector2d Ps[point_num];
 	GetPoint(&Ps[0], 0, 0);
 	GetPoint(&Ps[1], 5, 0);
-	GetPoint(&Ps[2], 5, 0);
-	GetPoint(&Ps[3], 5, 5);
+	GetPoint(&Ps[2], 5, 5);
+	//GetPoint(&Ps[3], 5, 5);
 	int t0 = 100;
 
 	FILE* fp1, *fp2;

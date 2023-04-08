@@ -33,11 +33,11 @@ typedef struct Open_list {
 } Open_list, * pOpen_list;
 /*障碍物为1，起点为2，终点为3，（地图可给根据需要修改）*/
 int map[MAP_LENTH][MAP_WIDTH] = {
-	{0, 3, 1, 0, 2},
-	{0, 1, 1, 0, 0},
+	{0, 0, 1, 0, 0},
+	{3, 1, 1, 0, 0},
 	{0, 0, 1, 0, 0},
 	{0, 0, 0, 1, 0},
-	{0, 0, 1, 0, 0}
+	{2, 0, 1, 0, 0}
 };
 
 float my_abs(int x);

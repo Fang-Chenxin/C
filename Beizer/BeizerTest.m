@@ -2,15 +2,19 @@ close all;
 clear;
 
 filename1 = 'line.txt';
-[x,y]=textread(filename1,'%n %n');
+fileID1 = fopen(filename1);
+xy=textscan(fileID1,'%n %n');
+fclose(fileID1);
 
 
 filename2 = 'Pt.txt';
-[Px,Py]=textread(filename2,'%n %n');
+fileID2 = fopen(filename2);
+P=textscan(fileID2,'%n %n');
+fclose(fileID2);
 
 figure(1);
 title('BeizerCurve'); 
 hold on;
-plot(x,y,'b');
+plot(xy{1},xy{2},'b');
 hold on;
-scatter(Px,Py,'*','r');
+scatter(P{1},P{2},'*','r');
