@@ -6,13 +6,15 @@
 #define END_Y 0
 #define START_X 0 // 起点坐标，（根据地图修改）
 #define START_Y 2
-#define MAP_LENTH 5 // 地图高宽，（根据地图修改）
+#define MAP_HEIGHT 5 // 地图高宽，（根据地图修改）
 #define MAP_WIDTH 5
 
 #define ERROR -1
 
 //---------------------------------------------------------------------------//
-
+int px[100];
+int py[100];
+int step = 0;
 typedef struct Open_list Open_list, *pOpen_list;
 typedef struct Node
 {
@@ -33,11 +35,11 @@ typedef struct Open_list
 	struct Node node;
 } Open_list, *pOpen_list;
 /*障碍物为1，起点为2，终点为3，（地图可给根据需要修改）*/
-int map[MAP_LENTH][MAP_WIDTH] = {
+int map[MAP_HEIGHT][MAP_WIDTH] = {
 	{0, 1, 2, 1, 1},
 	{3, 1, 0, 1, 1},
 	{0, 1, 0, 0, 0},
-	{0, 1, 1, 1, 0},
+	{0, 1, 0, 1, 0},
 	{0, 0, 0, 0, 0}};
 
 float my_abs(int x);
@@ -57,7 +59,8 @@ pOpen_list find_min_f(pOpen_list my_list);
 void msg_open_list(pOpen_list my_list);
 // 打印父节点坐标函数
 void printf_father_node(pOpen_list my_list);
-
+// 显示路径图
+void show_path();
 //---------------------------------------------------------------------------//
 // 尾部插入链表
 void list_add_tail(pOpen_list my_list, pOpen_list add_node)
@@ -172,7 +175,7 @@ void msg_open_list(pOpen_list my_list)
 void printf_father_node(pOpen_list my_list)
 {
 	printf("\n地图为：\n");
-	for (int i = 0; i < MAP_LENTH; i++)
+	for (int i = 0; i < MAP_HEIGHT; i++)
 	{
 		for (int j = 0; j < MAP_WIDTH; j++)
 		{
@@ -184,7 +187,11 @@ void printf_father_node(pOpen_list my_list)
 	while (my_list->node.pFather != NULL)
 	{
 		printf("(%d, %d)\n", my_list->node.pFather->node.x, my_list->node.pFather->node.y);
+		px[step] = my_list->node.pFather->node.x;
+		py[step] = my_list->node.pFather->node.y;
 		my_list = my_list->node.pFather;
+		map[px[step]][py[step]] = 4;
+		step++;
 	}
 }
 
@@ -207,59 +214,53 @@ float my_distance(int x1, int y1, int x2, int y2)
 	return sqrt((my_abs(x1 - x2) * my_abs(x1 - x2)) + (my_abs(y1 - y2) * my_abs(y1 - y2)));
 }
 
-//判断移动方向
-int analysis_move_dir(pOpen_list pre,pOpen_list now)
+// 寻找转弯点
+void find_turn_point()
 {
-	if(pre->node.x == now->node.x)
+	int count = 0;
+	for (int i = 0; i < step - 1; i++)
 	{
-		if(pre->node.y > now->node.y)
+		if (px[i + 1] != px[i - 1] && py[i + 1] != py[i - 1])
 		{
-			return 1;//上
-		}
-		else
-		{
-			return 2;//下
-		}
-	}
-	else
-	{
-		if(pre->node.x > now->node.x)
-		{
-			return 3;//左
-		}
-		else
-		{
-			return 4;//右
+			printf("turn(%d, %d)->(%d,%d)->(%d,%d)\n",
+				   px[i - 1], py[i - 1], px[i], py[i], px[i + 1], py[i + 1]);
+			count++;
 		}
 	}
 }
 
-//寻找转弯点
-void find_turn_point(pOpen_list my_list)
+// 显示路径图
+void show_path()
 {
-	pOpen_list tmp = my_list;
-	pOpen_list turn_point = (pOpen_list)malloc(sizeof(Open_list));
-	turn_point->next = NULL;
-	pOpen_list tmp_t = turn_point;
-	while(tmp->node.pFather != NULL)
-	{
-		if(tmp->node.x != tmp->node.pFather->node.x && tmp->node.y != tmp->node.pFather->node.y)
-		{
-			tmp_t->next = tmp;
-			tmp_t = tmp_t->next;
-			tmp_t->next = tmp->node.pFather;
-			tmp_t = tmp_t->next;
-			tmp_t->next = NULL;
-		}
-		tmp = tmp->node.pFather;
-	}
-	while (turn_point->next != NULL)
-	{
-		turn_point = turn_point->next;
-		printf("转弯点为(%d, %d)", turn_point->node.x, turn_point->node.y);
-		turn_point = turn_point->next;
-		printf("至(%d, %d)\n", turn_point->node.x, turn_point->node.y);
-	}
+    map[START_X][START_Y] = 2;
+    map[END_X][END_Y] = 3;
+    for (int i = 0; i < MAP_HEIGHT; ++i)
+    {
+        for (int j = 0; j < MAP_WIDTH; ++j)
+        {
+            if (map[i][j] == 1)
+            {
+                printf("■");
+            }
+            else if (map[i][j] == 0)
+            {
+                printf("□");
+            }
+            else if (map[i][j] == 2)
+            {
+                printf("s");
+            }
+            else if (map[i][j] == 3)
+            {
+                printf("e");
+            }
+            else if (map[i][j] == 4)
+            {
+                printf("o");
+            }
+        }
+        printf("\n");
+    }
 }
 
 int main()
@@ -308,15 +309,20 @@ int main()
 		// 把当前点从open list中移除（通过坐标），加入到close list，记为p
 		pOpen_list p = list_delete_point(pO, pCurrent->node.x, pCurrent->node.y);
 		list_add_tail(pC, p);
-		printf("now node is (%d, %d)\n", p->node.x, p->node.y);
+		// printf("now node is (%d, %d)\n", p->node.x, p->node.y);
 
-		printf("打印出相关F值\n");
-		msg_open_list(pO);
+		// printf("打印出相关F值\n");
+		// msg_open_list(pO);
 
 		for (i = -1; i < 2; i++)
 		{
 			for (j = -1; j < 2; j++)
 			{
+				// 如果是斜方向，跳过;如果是当前节点，跳过
+				if (i != 0 && j != 0 || i == 0 && j == 0)
+				{
+					continue;
+				}
 				if ((p->node.x + i < 0) || (p->node.x + i > 4) || (p->node.y + j < 0) || (p->node.y + j > 4)) // 超过边界了，跳过这次循环
 					continue;
 
@@ -334,7 +340,7 @@ int main()
 					{ // 是目标节点，初始化
 						printf("打印好了\n");
 						end->node.pFather = p; // 当前节点设为end 的父节点
-						cir = 0;			   // 跳出循环标志，注意跳出的是for
+						cir = 0;			   // 跳出循环标志，注意跳出的是while循环
 						break;
 					}
 					else
@@ -379,7 +385,8 @@ int main()
 				break;
 		}
 	}
-	find_turn_point(end);
 	printf_father_node(end);
+	find_turn_point();
+	show_path();
 	return 0;
 }
