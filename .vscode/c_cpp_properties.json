@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/gytx_x86_64-10.2.0-posix-seh/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include/c++"
+                "C:/gytx_x86_64-10.2.0-posix-seh/mingw64/lib/gcc/x86_64-w64-mingw32/10.2.0/include/c++",
+                "C:/gytx_x86_64-10.2.0-posix-seh/eigen-3.4.0"
             ],
             "defines": [
                 "_DEBUG",

@@ -4,8 +4,10 @@
   "C_Cpp.default.cppStandard": "c++20",
   "debug.onTaskErrors": "abort",
   "files.associations": {
+    "*.m": "matlab",
     "iomanip": "c",
     "iostream": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "lu": "cpp"
   }
 }

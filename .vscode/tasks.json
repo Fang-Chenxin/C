@@ -10,7 +10,9 @@
                 "-std=c++20",
                 "\"${file}\"",
                 "-o",
-                "\"${fileDirname}\\${fileBasenameNoExtension}.exe\""
+                "\"${fileDirname}\\${fileBasenameNoExtension}.exe\"",
+                "-I",
+                "C:/gytx_x86_64-10.2.0-posix-seh/eigen-3.4.0"
             ],
             "group": "build",
             "presentation": {
@@ -34,7 +36,9 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-I",
+                "C:/gytx_x86_64-10.2.0-posix-seh/eigen-3.4.0"
             ],
             "options": {
                 "cwd": "${fileDirname}"
