@@ -20,7 +20,7 @@ void assigment(double* s_target, double* v_target, double* a_max, double* j_max)
 void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max);
 double calculate_s_T(double v_act, double a_max, double j_max);
 double calculate_t(double xx, double j_max);
-void Initx(double j_max);
+void Init(double j_max);
 void InitT(void);
 void Initvv(double j_max);
 double j(double tt, double j_max);
@@ -122,7 +122,7 @@ void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max)
         }
     }
     InitT();
-    Initx(j_max);
+    Init(j_max);
     printf("s_T = %f\n", s_T);
 }
 double calculate_s_T(double v_act, double a_max, double j_max)
@@ -200,7 +200,7 @@ double calculate_t(double xx, double j_max)
     }
     else return ERROR;
 }
-void Initx(double j_max)    //给分界点位置赋值
+void Init(double j_max)    //给分界点位置赋值
 {
     double w = PI / t[0];       //角频率
 

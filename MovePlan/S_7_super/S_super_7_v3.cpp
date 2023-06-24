@@ -21,7 +21,7 @@ void assigment(double* s_target, double* v_target, double* a_max, double* j_max)
 void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max);
 double calculate_s_T(double v_act, double a_max, double j_max);
 double calculate_t(double xx, double j_max);
-void Initx(double j_max);
+void Init(double j_max);
 void InitT(void);
 void Initvv(double j_max);
 double j(double tt, double j_max);
@@ -227,10 +227,10 @@ int main(void)
     //{
     //    printf("距离为%f时，时间为%f，加加速度为%f，加速度为%f，速度为%f，距离为%f\n", xx, calculate_t(xx, j_max), j(calculate_t(xx, j_max), j_max), a(calculate_t(xx, j_max), j_max), v(calculate_t(xx, j_max), j_max), s(calculate_t(xx, j_max), j_max));
     //}
-    test1();            //有匀加速，匀减速，匀速
-    test2();            //无匀加速，匀减速，有匀速
+    // test1();            //有匀加速，匀减速，匀速
+    // test2();            //无匀加速，匀减速，有匀速
     test3();            //有匀加速，有匀减速，无匀速
-    test4();            //无匀加速，无匀减速，无匀速
+    // test4();            //无匀加速，无匀减速，无匀速
 }
 
 void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max)
@@ -269,7 +269,7 @@ void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max)
         }
     }
     InitT();
-    Initx(j_max);
+    Init(j_max);
 }
 double calculate_s_T(double v_act, double a_max, double j_max)
 {
@@ -353,7 +353,7 @@ void assigment(double* s_target, double* v_target, double* a_max, double* j_max)
     *a_max = 1;   //最大加速度
     *j_max = 1;      //最大加加速度
 }
-void Initx(double j_max)    //给分界点位置赋值
+void Init(double j_max)    //给分界点位置赋值
 {
     double w = PI / t[0];       //角频率
 

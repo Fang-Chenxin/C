@@ -40,6 +40,7 @@ int main() {
     }
 
     cout << "位置估计: " << x(0) << endl;
-
+    cout << "速度估计: " << x(1) << endl;
+    
     return 0;
 }
