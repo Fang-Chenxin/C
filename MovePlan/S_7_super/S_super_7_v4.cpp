@@ -5,20 +5,37 @@
 #define PI 3.1415926
 #define ERROR -1.0
 
+// /**
+//  * @brief 七段正弦速度规划关键点结构体
+//  * @param vv[7] 储存分界点速度的数组    
+//  * @param t[7] 储存各个运动阶段所需时间的数组
+//  * @param T[7] 储存各个运动阶段分界时间的数组
+//  * @param x[7] 储存各个运动阶段分界位置的数组
+//  * @note 以下是数组下标和运动阶段的对应关系
+//  * @note 0 加加速阶段
+//  * @note 1 匀加速阶段
+//  * @note 2 减加速阶段
+//  * @note 3 匀速阶段
+//  * @note 4 加减速阶段
+//  * @note 5 匀减速阶段
+//  * @note 6 减减速阶段
+//  */
+// struct S7S_KeyPointType
+// {
+//     double vv[7] = { 0 };//储存分界点速度的数组
+//     double t[7] = { 0 }; //储存各个运动阶段所需时间的数组
+//     double T[7] = { 0 }; //储存各个运动阶段分界时间的数组
+//     double x[7] = { 0 }; //储存各个运动阶段分界位置的数组
+// }KeyPoint;
+
 double vv[7] = { 0 };//储存分界点速度的数组
 double t[7] = { 0 }; //储存各个运动阶段所需时间的数组
 double T[7] = { 0 }; //储存各个运动阶段分界时间的数组
-double x[7] = { 0 }; //储存各个运动阶段分界位置的数组，以下是数组下标和运动阶段的对应关系
-//0         加加速阶段
-//1         匀加速阶段
-//2         减加速阶段
-//3         匀速阶段
-//4         加减速阶段
-//5         匀减速阶段
-//6         减减速阶段
+double x[7] = { 0 }; //储存各个运动阶段分界位置的数组
 
 void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max);
-double calculate_s_T(double v_act, double a_max, double j_max);
+double segment_rearrange(double v_act, double a_max, double j_max);
+double calculate_accelration_distance(double a_act);
 double lookup_t(double xx, double j_max);
 void Init(double j_max);
 double j(double tt, double j_max);
@@ -184,7 +201,7 @@ void test4(void) //无匀加减速，无匀速
     //    printf("时间为%f时，加加速度为%f，加速度为%f，速度为%f，距离为%f\n", tt, j(tt, j_max), a(tt, j_max), v(tt, j_max), s(tt, j_max));
     //}
     printf("\n");
-    for (xx = 0.0; xx < s_target; xx += 0.01)
+    for (xx = 0.0; xx <= s_target; xx += 0.01)
     {
         tt = lookup_t(xx, j_max);
         printf("距离为%f时，时间为%f，加加速度为%f，加速度为%f，速度为%f，距离为%f\n", xx, tt, j(tt, j_max), a(tt, j_max), v(tt, j_max), s(tt, j_max));
@@ -198,14 +215,24 @@ int main(void)
     // test4();            //无匀加减速，无匀速
 }
 
+/**
+ * @brief 规划主函数
+ * 
+ * @param s_target 
+ * @param v_target 
+ * @param a_max 
+ * @param j_max 
+ */
 void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max)
 {
     double v_act = 0;           //运动过程中可到达的最大速度
+    double a_act = 0;           //运动过程中可到达的最大加速度
     double s_T = 0;             //加速与减速段总位移
 
     double v_s = (a_max * a_max * PI) / (2 * j_max);  //无匀加速、匀减速过程系统可达到的最大速度
     v_act = v_target;           //假设实际规划可达最大速度为v_target
-    s_T = calculate_s_T(v_act, a_max, j_max);        //计算出加速与减速段总位移
+    a_act = segment_rearrange(v_act, a_max, j_max);
+    s_T = calculate_accelration_distance(a_act);  //计算加速与减速段总位移
     if (s_target >= s_T)        //运动过程中存在匀速段 或 运动过程中不存在匀速段，实际的最大速度v_act可以达到指定的最大速度v_target，
     {
         t[3] = (s_target - s_T) / v_target;   //保持速度为v_target的匀速运动时间
@@ -213,37 +240,35 @@ void SpeedPlan_S(double s_target, double v_target, double a_max, double j_max)
     else                        //运动过程中不存在匀速段，实际的最大速度v_max达不到目标的最大速度v_target
     {
         v_act = v_s;        //重新规划最大速度v_max,假设此时不包含匀加速和匀减速，恰好达到a_max
-        s_T = calculate_s_T(v_act, a_max, j_max);          //重新计算出加速与减速段总位移以及各段运动过程时间
-        if (s_target == s_T)         //则上述假设成立，v_s就是实际规划的最大速度，不包含匀加速和匀减速过程，曲线由加加速、减加速、加减速、匀减速、减减速五段组成
-        {
-
-        }
+        a_act = segment_rearrange(v_act, a_max, j_max);
+        s_T = calculate_accelration_distance(a_act);  //计算加速与减速段总位移
+        if (s_target == s_T){}         //则上述假设成立，v_s就是实际规划的最大速度，不包含匀加速和匀减速过程，曲线由加加速、减加速、加减速、匀减速、减减速五段组成
         else if (s_target > s_T)    //实际最大速度v_max比目标最大速度v_target小但大于目前规划的最大速度v_s，所以运动过程包含匀加速和匀减速，曲线由加加速、匀加速、减加速、加减速、匀减速、减减速六段组成
         {
             /*根据0.5*s_target=x[2]列出方程v_act^2+v_s*v_act-s=0*/
             v_act = (-v_s + sqrt(v_s * v_s + 4 * s_target)) / 2;
-            s_T = calculate_s_T(v_act, a_max, j_max);      //重新计算出加速与减速段总位移以及各段运动过程时间
+            segment_rearrange(v_act, a_max, j_max);
         }
         else if (s_target < s_T)            //不包含匀加速和匀减速，且实际最大速度比v_s还要小,所以曲线只由加加速、减加速、加减速、减减速四段组成
         {
             /*根据0.5*s_target=x[2]列出方程v_act^2+v_s*v_act-s=0*/
             v_act = pow((s_target * s_target * j_max)/(2 * PI), 1.0/3);
-            s_T = calculate_s_T(v_act, a_max, j_max);      //重新计算出加速与减速段总位移以及各段运动过程时间
+            segment_rearrange(v_act, a_max, j_max);
         }
     }
     Init(j_max);
 }
 
 /**
- * @brief 计算加速与减速段总位移
+ * @brief 在限制条件下重新分段
  *
  * @param v_act 实际规划可达最大速度
  * @param a_max 限制的最大加速度
  * @param j_max 限制的最大加加速度
  * @return double
- * @note
+ * @note 会修改全局变量t[0]~t[6]
  */
-double calculate_s_T(double v_act, double a_max, double j_max)
+double segment_rearrange(double v_act, double a_max, double j_max)
 {
     double v_s = (a_max * a_max * PI) / (2 * j_max);  //无匀加速、匀减速过程系统可达到的最大速度
     double a_act = a_max;               //假设加速度可达到的最大值为a_act
@@ -258,14 +283,18 @@ double calculate_s_T(double v_act, double a_max, double j_max)
         t[0] = t[2] = t[4] = t[6] = v_act / a_act;  //根据v[2]=v_act可得v_act=a_act*t[0]                              
         t[1] = t[5] = 0;                            //加速过程中不存在匀加速段，即t[1]=0
     }
+    return a_act;
+}
+
+double calculate_accelration_distance(double a_act)
+{
     double w = PI / t[0];       //角频率
+    vv[0] = 0.5 * a_act * (t[0] - sin(w * t[0]) / w);//加加速结束时的速度
+    vv[1] = a_act * t[1] + vv[0];//匀加速结束时的速度
 
-    vv[0] = 0.5 * a_act * (t[0] - sin(w * t[0]) / w);
-    vv[1] = a_act * t[1] + vv[0];
-
-    x[0] = 0.25 * a_act * (t[0] * t[0] + 2 * cos(w * t[0]) / (w * w)) - a_act / (2 * w * w);
-    x[1] = 0.5 * a_act * t[1] * t[1] + vv[0] * t[1] + x[0];
-    x[2] = 0.25 * a_act * (t[2] * t[2] - 2 * cos(w * t[2]) / (w * w)) + vv[1] * t[2] + a_act / (2 * w * w) + x[1];
+    x[0] = 0.25 * a_act * (t[0] * t[0] + 2 * cos(w * t[0]) / (w * w)) - a_act / (2 * w * w);//加加速结束时的位移
+    x[1] = 0.5 * a_act * t[1] * t[1] + vv[0] * t[1] + x[0];//匀加速结束时的位移
+    x[2] = 0.25 * a_act * (t[2] * t[2] - 2 * cos(w * t[2]) / (w * w)) + vv[1] * t[2] + a_act / (2 * w * w) + x[1];//减加速结束时的位移
 
     return x[2]*2;
 }
@@ -273,9 +302,9 @@ double calculate_s_T(double v_act, double a_max, double j_max)
 /**
  * @brief 根据当前位置查找对应的时间
  *
- * @param xx
- * @param j_max
- * @return double
+ * @param xx 当前位置
+ * @param j_max 最大加加速度
+ * @return double 对应的时间
  */
 double lookup_t(double xx, double j_max)
 {
@@ -322,7 +351,12 @@ double lookup_t(double xx, double j_max)
     else return ERROR;
 }
 
-void Init(double j_max)    //给分界点位置赋值
+/**
+ * @brief 给分界点位置赋值
+ * 
+ * @param j_max 最大加加速度
+ */
+void Init(double j_max) 
 {
     int i;
     T[0] = t[0];
