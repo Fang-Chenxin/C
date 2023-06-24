@@ -72,7 +72,7 @@ void DebugPrint(double j_max,double s_target)
     double xx = 0;
 
     printf("\n");
-    for (xx = 0.0; xx <= s_target; xx += 0.05)
+    for (xx = 0.0; xx <= s_target; xx += 0.1)
     {
         tt = lookup_t(xx, j_max);
         solve_move(tt, j_max);
@@ -328,6 +328,24 @@ void Init(double j_max)
     x[6] = -0.25 * a_act * (t[6] * t[6] - 2 * cos(w * t[6]) / (w * w)) + vv[5] * t[6] - a_act / (2 * w * w) + x[5];
 }
 
+int period_judge(double tt)
+{
+    if (tt >= 0 && tt < T[0])
+        return 0;
+    else if (tt > T[0] && tt <= T[1])
+        return 1;
+    else if (tt > T[1] && tt <= T[2])
+        return 2;
+    else if (tt > T[2] && tt <= T[3])
+        return 3;
+    else if (tt > T[3] && tt <= T[4])
+        return 4;
+    else if (tt > T[4] && tt <= T[5])
+        return 5;
+    else if (tt > T[5] && tt <= T[6])
+        return 6;
+    else return ERROR;
+}
 /**
  * @brief 求解运动学参数
  * 
@@ -335,60 +353,71 @@ void Init(double j_max)
  * @param j_max 最大加加速度
  * @return int 
  */
-int solve_move(double tt, double j_max)
+int solve_move(double time, double j_max)
 {
     double w = PI / t[0];      //角频率
     double a_act = (2 * j_max) / w;
-    if (tt >= 0 && tt < T[0])
+    switch (period_judge(time))
     {
-        Dynamic.j = j_max * sin(w * tt);
-        Dynamic.a = 0.5 * a_act * (1 - cos(w * tt));
-        Dynamic.v = 0.5 * a_act * (tt - sin(w * tt) / (w));
-        Dynamic.s = 0.25 * a_act * (tt * tt + 2 * cos(w * tt) / (w * w)) - a_act / (2 * w * w);
+        case 0:
+        {
+            Dynamic.j = j_max * sin(w * time);
+            Dynamic.a = 0.5 * a_act * (1 - cos(w * time));
+            Dynamic.v = 0.5 * a_act * (time - sin(w * time) / (w));
+            Dynamic.s = 0.25 * a_act * (time * time + 2 * cos(w * time) / (w * w)) - a_act / (2 * w * w);
+            break;
+        }
+        case 1:
+        {
+            Dynamic.j = 0;
+            Dynamic.a = a_act;
+            Dynamic.v = a_act * (time - T[0]) + vv[0];
+            Dynamic.s = 0.5 * a_act * (time - T[0]) * (time - T[0]) + vv[0] * (time - T[0]) + x[0];
+            break;
+        }
+        case 2:
+        {
+            Dynamic.j = -j_max * sin(w * (time - T[1]));
+            Dynamic.a = 0.5 * a_act * (1 + cos(w * (time - T[1])));
+            Dynamic.v = 0.5 * a_act * ((time - T[1]) + sin(w * (time - T[1])) / w) + vv[1];
+            Dynamic.s = 0.25 * a_act * ((time - T[1]) * (time - T[1]) - 2 * cos(w * (time - T[1])) / (w * w)) + vv[1] * (time - T[1]) + a_act / (2 * w * w) + x[1];
+            break;
+        }
+        case 3:
+        {
+            Dynamic.j = 0;
+            Dynamic.a = 0;
+            Dynamic.v = vv[3];
+            Dynamic.s = vv[3] * (time - T[2]) + x[2];
+            break;
+        }
+        case 4:
+        {
+            Dynamic.j = -j_max * sin(w * (time - T[3]));
+            Dynamic.a = -0.5 * a_act * (1 - cos(w * (time - T[3])));
+            Dynamic.v = -0.5 * a_act * ((time - T[3]) - sin(w * (time - T[3])) / w) + vv[3];
+            Dynamic.s = -0.25 * a_act * ((time - T[3]) * (time - T[3]) + 2 * cos(w * (time - T[3])) / (w * w)) + vv[3] * (time - T[3]) + a_act / (2 * w * w) + x[3];
+            break;
+        }
+        case 5:
+        {
+            Dynamic.j = 0;
+            Dynamic.a = -a_act;
+            Dynamic.v = -a_act * (time - T[4]) + vv[4];
+            Dynamic.s = -0.5 * a_act * (time - T[4]) * (time - T[4]) + vv[4] * (time - T[4]) + x[4];
+            break;
+        }
+        case 6:
+        {
+            Dynamic.j = j_max * sin(w * (time - T[5]));
+            Dynamic.a = -0.5 * a_act * (1 + cos(w * (time - T[5])));
+            Dynamic.v = -0.5 * a_act * ((time - T[5]) + sin(w * (time - T[5])) / w) + vv[5];
+            Dynamic.s = -0.25 * a_act * ((time - T[5]) * (time - T[5]) - 2 * cos(w * (time - T[5])) / (w * w)) + vv[5] * (time - T[5]) - a_act / (2 * w * w) + x[5];
+            break;
+        }
+        default:
+            return ERROR;
     }
-    else if (tt > T[0] && tt <= T[1])
-    {
-        Dynamic.j = 0;
-        Dynamic.a = a_act;
-        Dynamic.v = a_act * (tt - T[0]) + vv[0];
-        Dynamic.s = 0.5 * a_act * (tt - T[0]) * (tt - T[0]) + vv[0] * (tt - T[0]) + x[0];
-    }
-    else if (tt > T[1] && tt <= T[2])
-    {
-        Dynamic.j = -j_max * sin(w * (tt - T[1]));
-        Dynamic.a = 0.5 * a_act * (1 + cos(w * (tt - T[1])));
-        Dynamic.v = 0.5 * a_act * ((tt - T[1]) + sin(w * (tt - T[1])) / w) + vv[1];
-        Dynamic.s = 0.25 * a_act * ((tt - T[1]) * (tt - T[1]) - 2 * cos(w * (tt - T[1])) / (w * w)) + vv[1] * (tt - T[1]) + a_act / (2 * w * w) + x[1];
-    }
-    else if (tt > T[2] && tt <= T[3])
-    {
-        Dynamic.j = 0;
-        Dynamic.a = 0;
-        Dynamic.v = vv[3];
-        Dynamic.s = vv[3] * (tt - T[2]) + x[2];
-    }
-    else if (tt > T[3] && tt <= T[4])
-    {
-        Dynamic.j = -j_max * sin(w * (tt - T[3]));
-        Dynamic.a = -0.5 * a_act * (1 - cos(w * (tt - T[3])));
-        Dynamic.v = -0.5 * a_act * ((tt - T[3]) - sin(w * (tt - T[3])) / w) + vv[3];
-        Dynamic.s = -0.25 * a_act * ((tt - T[3]) * (tt - T[3]) + 2 * cos(w * (tt - T[3])) / (w * w)) + vv[3] * (tt - T[3]) + a_act / (2 * w * w) + x[3];
-    }
-    else if (tt > T[4] && tt <= T[5])
-    {
-        Dynamic.j = 0;
-        Dynamic.a = -a_act;
-        Dynamic.v = -a_act * (tt - T[4]) + vv[4];
-        Dynamic.s = -0.5 * a_act * (tt - T[4]) * (tt - T[4]) + vv[4] * (tt - T[4]) + x[4];
-    }
-    else if (tt > T[5] && tt <= T[6])
-    {
-        Dynamic.j = j_max * sin(w * (tt - T[5]));
-        Dynamic.a = -0.5 * a_act * (1 + cos(w * (tt - T[5])));
-        Dynamic.v = -0.5 * a_act * ((tt - T[5]) + sin(w * (tt - T[5])) / w) + vv[5];
-        Dynamic.s = -0.25 * a_act * ((tt - T[5]) * (tt - T[5]) - 2 * cos(w * (tt - T[5])) / (w * w)) + vv[5] * (tt - T[5]) - a_act / (2 * w * w) + x[5];
-    }
-    else return ERROR;
     return OK;
 }
 
